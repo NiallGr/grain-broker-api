@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrainBroker.API", "GrainBroker.API.csproj", "{D81907DB-0C57-4E27-AC03-3F528698EFEB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrainBroker.API", "GrainBroker.API\GrainBroker.API.csproj", "{03735B48-7DD6-471F-B489-47BA1B0C2907}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrainBroker.Core", "..\GrainBroker.Core\GrainBroker.Core.csproj", "{EFDC3EB2-C2FE-4361-B16A-CC8F34E74E63}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrainBroker.Core", "GrainBroker.Core\GrainBroker.Core.csproj", "{45E9AA3D-231E-46E2-A07B-037264CEDA06}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrainBroker.Data", "..\GrainBroker.Data\GrainBroker.Data.csproj", "{5D49214A-8C63-43BD-9EDC-5F7AC454DCBC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrainBroker.Data", "GrainBroker.Data\GrainBroker.Data.csproj", "{CE81E6A3-DE98-427B-9CB9-43E7B7716C3F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,18 +15,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{D81907DB-0C57-4E27-AC03-3F528698EFEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D81907DB-0C57-4E27-AC03-3F528698EFEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D81907DB-0C57-4E27-AC03-3F528698EFEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D81907DB-0C57-4E27-AC03-3F528698EFEB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EFDC3EB2-C2FE-4361-B16A-CC8F34E74E63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EFDC3EB2-C2FE-4361-B16A-CC8F34E74E63}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EFDC3EB2-C2FE-4361-B16A-CC8F34E74E63}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EFDC3EB2-C2FE-4361-B16A-CC8F34E74E63}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5D49214A-8C63-43BD-9EDC-5F7AC454DCBC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5D49214A-8C63-43BD-9EDC-5F7AC454DCBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5D49214A-8C63-43BD-9EDC-5F7AC454DCBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5D49214A-8C63-43BD-9EDC-5F7AC454DCBC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03735B48-7DD6-471F-B489-47BA1B0C2907}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03735B48-7DD6-471F-B489-47BA1B0C2907}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03735B48-7DD6-471F-B489-47BA1B0C2907}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03735B48-7DD6-471F-B489-47BA1B0C2907}.Release|Any CPU.Build.0 = Release|Any CPU
+		{45E9AA3D-231E-46E2-A07B-037264CEDA06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45E9AA3D-231E-46E2-A07B-037264CEDA06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45E9AA3D-231E-46E2-A07B-037264CEDA06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45E9AA3D-231E-46E2-A07B-037264CEDA06}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE81E6A3-DE98-427B-9CB9-43E7B7716C3F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE81E6A3-DE98-427B-9CB9-43E7B7716C3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE81E6A3-DE98-427B-9CB9-43E7B7716C3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE81E6A3-DE98-427B-9CB9-43E7B7716C3F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
