@@ -10,7 +10,9 @@ public class GrainBrokerDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(GrainBrokerDbContext).Assembly);
+
         modelBuilder.Entity<GrainOrder>()
-            .HasIndex(x => x.PurchaseOrder);
+            .HasIndex(x => x.PurchaseOrderId);
     }
 }

@@ -1,5 +1,6 @@
 using GrainBroker.Core.DTOs;
 using GrainBroker.Core.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GrainBroker.Api.Controllers
@@ -13,13 +14,16 @@ namespace GrainBroker.Api.Controllers
         public OrdersController(IOrderService orders) => _orders = orders;
 
         [HttpGet]
-        public async Task<IActionResult> GetAll(CancellationToken ct)
+        [Authorize(Policy = "BrokerRead")]
+        public async Task<ActionResult<IEnumerable<OrderDto>>> GetAll(CancellationToken ct)
         {
-         
-            return Ok();
+            var result = await _orders.ListAsync(1, 100, null, null, null, ct);
+            return Ok(result.Items); 
         }
 
+
         [HttpPost("import")]
+        [Authorize(Policy = "BrokerWrite")]
         [RequestSizeLimit(50_000_000)]
         [Consumes("multipart/form-data")]
         public async Task<ActionResult<ImportResultDto>> Import([FromForm] IFormFile file, CancellationToken ct)
@@ -32,5 +36,7 @@ namespace GrainBroker.Api.Controllers
 
             return Ok(result);
         }
+
+
     }
 }

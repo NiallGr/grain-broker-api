@@ -16,7 +16,6 @@ namespace GrainBroker.Core.Services
         public OrderService(IOrderRepository repo, IMapper mapper)
         { _repo = repo; _mapper = mapper; }
 
-        // ---------- Import (row-tolerant) ----------
         public async Task<ImportResultDto> ImportCsvAsync(Stream csvStream, CancellationToken ct = default)
         {
             var result = new ImportResultDto();
@@ -39,10 +38,10 @@ namespace GrainBroker.Core.Services
             var headers = csv.HeaderRecord!.Select(h => h.Trim()).ToArray();
             string[] required = new[]
             {
-                "Order Date", "Purchase Order", "Customer ID", "Customer Location",
-                "Order Req Amt (Ton)", "Fullfilled By ID", "Fullfilled By Location",
-                "Supplied Amt (Ton)", "Cost Of Delivery ($)"
-            };
+        "Order Date", "Purchase Order", "Customer ID", "Customer Location",
+        "Order Req Amt (Ton)", "Fullfilled By ID", "Fullfilled By Location",
+        "Supplied Amt (Ton)", "Cost Of Delivery ($)"
+    };
             var missing = required.Where(r => !headers.Contains(r)).ToArray();
             if (missing.Length > 0)
                 throw new InvalidOperationException("Missing columns: " + string.Join(", ", missing));
@@ -93,8 +92,25 @@ namespace GrainBroker.Core.Services
                 if (!TryDec(suppliedTons, out var sup)) reasons.Add("Supplied Amt (Ton) invalid");
                 if (!TryDec(deliveryCost, out var cost)) reasons.Add("Cost Of Delivery ($) invalid");
 
+                Guid purchaseOrderGuid = Guid.Empty;
+                Guid customerGuid = Guid.Empty;
+                Guid? fulfilledByGuid = null;
+                Guid parsedFulfilled;
+
                 if (reasons.Count == 0)
                 {
+                    if (!Guid.TryParse(purchaseOrder.Trim(), out purchaseOrderGuid))
+                        reasons.Add("Purchase Order must be a valid GUID");
+                    if (!Guid.TryParse(customerId.Trim(), out customerGuid))
+                        reasons.Add("Customer ID must be a valid GUID");
+                    if (!string.IsNullOrWhiteSpace(fulfilledById))
+                    {
+                        if (Guid.TryParse(fulfilledById.Trim(), out parsedFulfilled))
+                            fulfilledByGuid = parsedFulfilled;
+                        else
+                            reasons.Add("Fullfilled By ID must be a valid GUID");
+                    }
+
                     if (req < 0) reasons.Add("RequestedTons cannot be negative");
                     if (sup < 0) reasons.Add("SuppliedTons cannot be negative");
                     if (cost < 0) reasons.Add("DeliveryCost cannot be negative");
@@ -102,19 +118,24 @@ namespace GrainBroker.Core.Services
 
                 if (reasons.Count > 0)
                 {
-                    result.Failures.Add(new ImportFailureDto { Row = rowIndex, Reason = string.Join("; ", reasons), Raw = raw });
+                    result.Failures.Add(new ImportFailureDto
+                    {
+                        Row = rowIndex,
+                        Reason = string.Join("; ", reasons),
+                        Raw = raw
+                    });
                     continue;
                 }
 
                 valid.Add(new GrainOrder
                 {
                     OrderDate = dt,
-                    PurchaseOrder = purchaseOrder.Trim(),
-                    CustomerId = customerId.Trim(),
+                    PurchaseOrderId = purchaseOrderGuid,
+                    CustomerId = customerGuid,
                     CustomerLocation = string.IsNullOrWhiteSpace(customerLocation) ? null : customerLocation.Trim(),
                     RequestedTons = req,
                     SuppliedTons = sup,
-                    FulfilledById = string.IsNullOrWhiteSpace(fulfilledById) ? null : fulfilledById.Trim(),
+                    FulfilledById = fulfilledByGuid,
                     FulfilledByLocation = string.IsNullOrWhiteSpace(fulfilledByLocation) ? null : fulfilledByLocation.Trim(),
                     DeliveryCost = cost
                 });

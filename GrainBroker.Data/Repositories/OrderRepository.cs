@@ -19,17 +19,30 @@ public class OrderRepository : IOrderRepository
     public async Task<(IReadOnlyList<GrainOrder> items, int total)> ListAsync(
         int page, int pageSize, string? q, DateTime? from, DateTime? to, CancellationToken ct = default)
     {
+        if (page < 1) page = 1;
+        if (pageSize <= 0) pageSize = 20;
+
         var query = _db.Orders.AsNoTracking().AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(q))
         {
             var term = q.Trim();
-            query = query.Where(o =>
-                o.PurchaseOrder.Contains(term) ||
-                o.CustomerId.Contains(term) ||
-                (o.CustomerLocation != null && o.CustomerLocation.Contains(term)) ||
-                (o.FulfilledById != null && o.FulfilledById.Contains(term)) ||
-                (o.FulfilledByLocation != null && o.FulfilledByLocation.Contains(term)));
+
+            if (Guid.TryParse(term, out var guid))
+            {
+                // Search by GUID equality on GUID columns
+                query = query.Where(o =>
+                    o.PurchaseOrderId == guid ||
+                    o.CustomerId == guid ||
+                    (o.FulfilledById != null && o.FulfilledById == guid));
+            }
+            else
+            {
+                // Fallback: search string columns
+                query = query.Where(o =>
+                    (o.CustomerLocation != null && EF.Functions.Like(o.CustomerLocation, $"%{term}%")) ||
+                    (o.FulfilledByLocation != null && EF.Functions.Like(o.FulfilledByLocation, $"%{term}%")));
+            }
         }
 
         if (from.HasValue) query = query.Where(o => o.OrderDate >= from.Value.Date);
@@ -55,3 +68,4 @@ public class OrderRepository : IOrderRepository
         return true;
     }
 }
+
