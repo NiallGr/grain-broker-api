@@ -12,19 +12,18 @@ Environment.SetEnvironmentVariable("DOTNET_SYSTEM_GLOBALIZATION_INVARIANT", "fal
 
 var builder = WebApplication.CreateBuilder(args);
 
-
+// ---------- Data ----------
 builder.Services.AddDbContext<GrainBrokerDbContext>(opt =>
     opt.UseSqlServer(builder.Configuration.GetConnectionString("GrainBroker"))
        .EnableSensitiveDataLogging(builder.Environment.IsDevelopment()));
 
 builder.Services.AddAutoMapper(typeof(OrderMappingProfile));
-
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
+// ---------- AuthN/AuthZ ----------
 var tenantId = builder.Configuration["AzureAd:TenantId"]!;
 var apiClientId = builder.Configuration["AzureAd:Api:ClientId"]!;
-
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -35,8 +34,8 @@ builder.Services
         {
             ValidAudiences = new[]
             {
-                apiClientId,                
-                $"api://{apiClientId}"       
+                apiClientId,
+                $"api://{apiClientId}"
             },
             ValidIssuers = new[]
             {
@@ -53,13 +52,27 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("BrokerWrite", p => p.RequireRole("Broker.Write"));
 });
 
+// ---------- CORS (Angular dev) ----------
+builder.Services.AddCors(o =>
+{
+    o.AddPolicy("AllowLocalAngular", p => p
+        .WithOrigins(
+            "http://localhost:4200",
+            "https://localhost:4200" // if you run `ng serve --ssl`
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+    );
+});
+
+// ---------- MVC / Swagger ----------
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Grain Broker API", Version = "v1" });
 
-    // Allow pasting a Bearer token (from Postman)
+    // Paste a Bearer token in Swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "Paste JWT here (format: Bearer {token})",
@@ -94,8 +107,13 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// CORS MUST be before auth/authorization and endpoints
+app.UseCors("AllowLocalAngular");
+
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();

@@ -38,10 +38,10 @@ namespace GrainBroker.Core.Services
             var headers = csv.HeaderRecord!.Select(h => h.Trim()).ToArray();
             string[] required = new[]
             {
-        "Order Date", "Purchase Order", "Customer ID", "Customer Location",
-        "Order Req Amt (Ton)", "Fullfilled By ID", "Fullfilled By Location",
-        "Supplied Amt (Ton)", "Cost Of Delivery ($)"
-    };
+                "Order Date", "Purchase Order", "Customer ID", "Customer Location",
+                "Order Req Amt (Ton)", "Fullfilled By ID", "Fullfilled By Location",
+                "Supplied Amt (Ton)", "Cost Of Delivery ($)"
+            };
             var missing = required.Where(r => !headers.Contains(r)).ToArray();
             if (missing.Length > 0)
                 throw new InvalidOperationException("Missing columns: " + string.Join(", ", missing));
