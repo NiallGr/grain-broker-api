@@ -62,7 +62,7 @@ builder.Services.AddCors(o =>
     o.AddPolicy("AllowLocalAngular", p => p
         .WithOrigins(
             "http://localhost:4200",
-            "https://localhost:4200" // if you run `ng serve --ssl`
+            "https://localhost:4200" 
         )
         .AllowAnyHeader()
         .AllowAnyMethod()
@@ -112,7 +112,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// CORS MUST be before auth/authorization and endpoints
 app.UseCors("AllowLocalAngular");
 
 app.UseAuthentication();
