@@ -17,43 +17,19 @@ public class OrderRepository : IOrderRepository
         => _db.Orders.FirstOrDefaultAsync(x => x.Id == id, ct);
 
     public async Task<(IReadOnlyList<GrainOrder> items, int total)> ListAsync(
-        int page, int pageSize, string? q, DateTime? from, DateTime? to, CancellationToken ct = default)
+            int page, int amount, CancellationToken ct = default)
     {
         if (page < 1) page = 1;
-        if (pageSize <= 0) pageSize = 20;
+        if (amount <= 0) amount = 20;
 
-        var query = _db.Orders.AsNoTracking().AsQueryable();
-
-        if (!string.IsNullOrWhiteSpace(q))
-        {
-            var term = q.Trim();
-
-            if (Guid.TryParse(term, out var guid))
-            {
-                // Search by GUID equality on GUID columns
-                query = query.Where(o =>
-                    o.PurchaseOrderId == guid ||
-                    o.CustomerId == guid ||
-                    (o.FulfilledById != null && o.FulfilledById == guid));
-            }
-            else
-            {
-                // Fallback: search string columns
-                query = query.Where(o =>
-                    (o.CustomerLocation != null && EF.Functions.Like(o.CustomerLocation, $"%{term}%")) ||
-                    (o.FulfilledByLocation != null && EF.Functions.Like(o.FulfilledByLocation, $"%{term}%")));
-            }
-        }
-
-        if (from.HasValue) query = query.Where(o => o.OrderDate >= from.Value.Date);
-        if (to.HasValue) query = query.Where(o => o.OrderDate < to.Value.Date.AddDays(1));
+        var query = _db.Orders.AsNoTracking();
 
         var total = await query.CountAsync(ct);
 
         var items = await query
             .OrderByDescending(o => o.OrderDate).ThenByDescending(o => o.Id)
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
+            .Skip((page - 1) * amount)
+            .Take(amount)
             .ToListAsync(ct);
 
         return (items, total);
@@ -67,5 +43,18 @@ public class OrderRepository : IOrderRepository
         await _db.SaveChangesAsync(ct);
         return true;
     }
+    public async Task<IReadOnlyList<GrainOrder>> GetLatestAsync(int amount, CancellationToken ct = default)
+    {
+        amount = Math.Clamp(amount, 1, 200);
+
+        return await _db.Orders
+            .AsNoTracking()
+            .OrderByDescending(o => o.OrderDate)
+            .ThenByDescending(o => o.Id)
+            .Take(amount)
+            .ToListAsync(ct);
+    }
+
+
 }
 

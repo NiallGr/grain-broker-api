@@ -152,15 +152,16 @@ namespace GrainBroker.Core.Services
             return result;
         }
 
-        public async Task<PagedResult<OrderDto>> ListAsync(int page, int pageSize, string? q, DateTime? from, DateTime? to, CancellationToken ct = default)
+        public async Task<PagedResult<OrderDto>> ListAsync(int page, int amount, CancellationToken ct = default)
         {
             page = Math.Max(1, page);
-            pageSize = Math.Clamp(pageSize, 1, 200);
+            amount = Math.Clamp(amount, 1, 200);
 
-            var (items, total) = await _repo.ListAsync(page, pageSize, q, from, to, ct);
+            var (items, total) = await _repo.ListAsync(page, amount, ct);
             var dtos = _mapper.Map<IReadOnlyList<OrderDto>>(items);
-            return new PagedResult<OrderDto>(page, pageSize, total, dtos);
+            return new PagedResult<OrderDto>(page, amount, total, dtos);
         }
+
 
         public async Task<OrderDto?> GetAsync(int id, CancellationToken ct = default)
         {

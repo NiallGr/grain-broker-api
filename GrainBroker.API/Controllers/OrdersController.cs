@@ -11,28 +11,29 @@ namespace GrainBroker.Api.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly IOrderService _orders;
+        private readonly IOrderAnalysisService _analysis;
 
-        public OrdersController(IOrderService orders) => _orders = orders;
+        public OrdersController(IOrderService orders, IOrderAnalysisService analysis)
+        {
+            _analysis = analysis;
+            _orders = orders;
+        }
+
+
         /// <summary>
-        /// Returns a paged list of orders with optional free-text and date-range filtering.
+        /// Returns a paged list of orders.
         /// </summary>
         /// <param name="page">1-based page index (default 1)</param>
-        /// <param name="pageSize">Page size 1..200 (default 50)</param>
-        /// <param name="q">Free-text query</param>
-        /// <param name="from">Start date (inclusive)</param>
-        /// <param name="to">End date (inclusive)</param>
+        /// <param name="amount">Items per page 1..200 (default 50)</param>
         [HttpGet]
         [Authorize(Policy = "BrokerRead")]
         [ProducesResponseType(typeof(PagedResult<OrderDto>), StatusCodes.Status200OK)]
         public async Task<ActionResult<PagedResult<OrderDto>>> List(
             [FromQuery] int page = 1,
-            [FromQuery, Range(1, 200)] int pageSize = 50,
-            [FromQuery] string? q = null,
-            [FromQuery] DateTime? from = null,
-            [FromQuery] DateTime? to = null,
+            [FromQuery, Range(1, 200)] int amount = 50,
             CancellationToken ct = default)
         {
-            var result = await _orders.ListAsync(page, pageSize, q, from, to, ct);
+            var result = await _orders.ListAsync(page, amount, ct);
             return Ok(result);
         }
 
@@ -81,6 +82,23 @@ namespace GrainBroker.Api.Controllers
             var ok = await _orders.DeleteAsync(id, ct);
             if (!ok) return NotFound();
             return NoContent();
+        }
+
+        [HttpGet("insights")]
+        [Authorize(Policy = "BrokerRead")]
+        [ProducesResponseType(typeof(OrderInsightsDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status501NotImplemented)]
+        public async Task<ActionResult<OrderInsightsDto>> Insights(CancellationToken ct)
+        {
+            try
+            {
+                var result = await _analysis.AnalyzeLatestAsync(ct);
+                return Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = ex.Message });
+            }
         }
 
 

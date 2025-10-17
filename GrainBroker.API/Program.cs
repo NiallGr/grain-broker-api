@@ -17,6 +17,10 @@ builder.Services.AddDbContext<GrainBrokerDbContext>(opt =>
     opt.UseSqlServer(builder.Configuration.GetConnectionString("GrainBroker"))
        .EnableSensitiveDataLogging(builder.Environment.IsDevelopment()));
 
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<IOrderAnalysisService, OrderAnalysisService>();
+
+
 builder.Services.AddAutoMapper(typeof(OrderMappingProfile));
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
